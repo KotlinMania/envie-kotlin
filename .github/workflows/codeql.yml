@@ -67,26 +67,41 @@ jobs:
           languages: ${{ matrix.language }}
           build-mode: ${{ matrix.build-mode }}
 
-      - name: Compile Android Kotlin (JVM bytecode) for CodeQL extraction
+      - name: Compile every Kotlin target for CodeQL extraction
         if: matrix.build-mode == 'manual'
         shell: bash
-        # `compileAndroidMain` is the only compilation in this KMP project that
-        # emits real JVM `.class` files (under `build/classes/kotlin/android/main`).
-        # The `com.android.kotlin.multiplatform.library` plugin runs the JVM
-        # `kotlinc` for the Android target, which is exactly what the CodeQL
-        # Kotlin extractor's LD_PRELOAD tracer can hook.
+        # `compileAndroidMain` is the canonical scannable target: the
+        # `com.android.kotlin.multiplatform.library` plugin runs JVM kotlinc
+        # and emits real `.class` files under `build/classes/kotlin/android/
+        # main`. CodeQL's Kotlin extractor is an LD_PRELOAD tracer hooking
+        # JVM kotlinc exec, so this is the compilation it can definitely
+        # ingest. That run already covers commonMain + androidMain.
         #
-        # `--rerun-tasks` defeats Gradle's up-to-date check and `--no-build-cache`
-        # disables cache hits restored by setup-gradle, ensuring kotlinc is
-        # actually invoked so the tracer has something to hook.
+        # `compileKotlinJs` and `compileKotlinWasmJs` are run in the same
+        # manual step on the chance that the tracer matches by binary name
+        # (kotlinc-js / kotlinc-wasm) rather than strictly by JVM-target
+        # output. If it does, jsMain and wasmJsMain sources also get
+        # extracted; if it doesn't, the extra compiles are harmless CI
+        # cost and the analysis still passes on the Android coverage.
+        # Native targets are intentionally not listed: the K/Native
+        # backend produces no kotlinc exec that the JVM-extractor tracer
+        # could match on under any plausible naming convention.
         #
-        # `kotlin.compiler.execution.strategy=out-of-process` spawns a fresh
-        # kotlinc JVM per compilation (instead of the long-lived `daemon`
-        # default or function-call `in-process` mode). CodeQL's LD_PRELOAD
-        # tracer hooks new process invocations, so out-of-process gives it a
-        # process exec to intercept.
+        # `--rerun-tasks` defeats Gradle's up-to-date check and
+        # `--no-build-cache` disables cache hits restored by setup-gradle,
+        # ensuring kotlinc actually runs so the tracer has something to
+        # intercept.
+        #
+        # `kotlin.compiler.execution.strategy=out-of-process` spawns a
+        # fresh kotlinc JVM per compilation (instead of the long-lived
+        # `daemon` default or function-call `in-process` mode). The
+        # LD_PRELOAD tracer hooks new process invocations, so
+        # out-of-process gives it a process exec to intercept.
         run: |
-          ./gradlew compileAndroidMain \
+          ./gradlew \
+            compileAndroidMain \
+            compileKotlinJs \
+            compileKotlinWasmJs \
             --rerun-tasks \
             --no-build-cache \
             -Pkotlin.compiler.execution.strategy=out-of-process \
