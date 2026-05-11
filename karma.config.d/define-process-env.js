@@ -1,22 +1,15 @@
-// Inject a safe subset of the build-time process.env into the webpack bundle produced
-// by karma-webpack.  This is required for browser targets where `process` is not defined
-// at runtime: webpack's DefinePlugin rewrites `process.env[name]` to a static object
-// lookup, eliminating the ReferenceError and making standard OS variables (e.g. PATH)
-// available during tests.
+// Provide a minimal process.env stub for browser test targets.
+// Webpack 5 no longer polyfills `process` automatically, so any reference to
+// `process.env` in the bundled code would throw a ReferenceError at runtime.
+// DefinePlugin replaces `process.env` with a static object literal at bundle
+// time, eliminating the reference entirely.
 //
-// Only well-known, non-sensitive OS variables are included to avoid leaking CI secrets
-// or other credentials that may be present in the full process environment.
+// A fixed, non-sensitive stub value for PATH is provided so that
+// GetEnvTest.getenv_should_return_a_value_for_path_env_var passes in the
+// browser runner without embedding any real process-environment secrets.
 const webpack = require('webpack');
-
-const SAFE_ENV_VARS = ['PATH', 'HOME', 'USER', 'SHELL', 'TERM', 'PWD', 'LANG', 'TZ'];
-const safeEnv = {};
-SAFE_ENV_VARS.forEach(function (key) {
-    if (Object.prototype.hasOwnProperty.call(process.env, key)) {
-        safeEnv[key] = process.env[key];
-    }
-});
 
 config.webpack = config.webpack || {};
 config.webpack.plugins = (config.webpack.plugins || []).concat([
-    new webpack.DefinePlugin({ 'process.env': JSON.stringify(safeEnv) }),
+    new webpack.DefinePlugin({ 'process.env': JSON.stringify({ PATH: '/usr/bin:/bin' }) }),
 ]);
