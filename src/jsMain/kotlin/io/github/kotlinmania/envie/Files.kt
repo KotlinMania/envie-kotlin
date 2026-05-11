@@ -20,15 +20,17 @@ internal actual fun writeStringToFile(path: String, content: String): Result<Uni
 }
 
 // The `require('fs')` literal would otherwise be parsed by webpack and pulled into the browser
-// bundle, where `fs` is unresolvable. Resolving `require` through `eval('require')` keeps the
-// string opaque to webpack so the call is only attempted at runtime in environments that have a
-// real `require` (Node).
+// bundle, where `fs` is unresolvable. The earlier eval('require')-trick form generated valid JS
+// but webpack's eval-source-map devtool wraps eval() calls and the wrapping broke an embedded
+// ternary at bundle time. `new Function(...)()` is even more opaque: webpack's static analyzer
+// can't see what's being constructed, so the lookup is only attempted at runtime in environments
+// that actually expose `require` (Node).
 private fun jsReadFile(path: String): dynamic = js(
-    "(function(){ try { var r = eval('typeof require !== \"undefined\" ? require : null'); if (!r) return undefined; return r('fs').readFileSync(path, 'utf-8'); } catch (e) { return undefined; } })()",
+    "(function(){ try { var rq = (new Function('return typeof require === \"function\" ? require : null'))(); if (!rq) return undefined; return rq('fs').readFileSync(path, 'utf-8'); } catch (e) { return undefined; } })()",
 )
 
 private fun jsWriteFile(path: String, content: String): Boolean = js(
-    "(function(){ try { var r = eval('typeof require !== \"undefined\" ? require : null'); if (!r) return false; r('fs').writeFileSync(path, content, 'utf-8'); return true; } catch (e) { return false; } })()",
+    "(function(){ try { var rq = (new Function('return typeof require === \"function\" ? require : null'))(); if (!rq) return false; rq('fs').writeFileSync(path, content, 'utf-8'); return true; } catch (e) { return false; } })()",
 )
 
 private fun undefined(): dynamic = js("undefined")
