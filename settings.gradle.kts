@@ -1,28 +1,20 @@
 pluginManagement {
     repositories {
+        google()
+        mavenCentral()
         gradlePluginPortal()
     }
-    plugins {
-        id("de.fayard.refreshVersions") version "0.60.5"
-    }
+    plugins { kotlin("multiplatform") version "2.3.21" }
 }
 
-@Suppress("UnstableApiUsage")
+plugins { id("org.gradle.toolchains.foojay-resolver-convention") version "0.9.0" }
+
 dependencyResolutionManagement {
     repositories {
+        mavenLocal()
+        google()
         mavenCentral()
     }
 }
 
-plugins {
-    id("de.fayard.refreshVersions")
-}
-
-
-refreshVersions { // Optional: configure the plugin
-    // ...
-}
-
-rootProject.name = "getenv-kt"
-
-include(":getenv")
+rootProject.name = "envie-kotlin"
