@@ -6,6 +6,7 @@ package io.github.kotlinmania.envie
 import kotlinx.cinterop.ByteVar
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.allocArray
+import kotlinx.cinterop.convert
 import kotlinx.cinterop.memScoped
 import kotlinx.cinterop.readBytes
 import kotlinx.cinterop.refTo
@@ -27,7 +28,7 @@ internal actual fun readFileToString(path: String): Result<String> {
             val buf = allocArray<ByteVar>(IO_CHUNK_SIZE)
             val accum = ArrayList<Byte>(IO_CHUNK_SIZE)
             while (true) {
-                val n = fread(buf, 1u, IO_CHUNK_SIZE.toULong(), fp).toInt()
+                val n = fread(buf, 1.convert(), IO_CHUNK_SIZE.convert(), fp).toInt()
                 if (n <= 0) break
                 val chunk = buf.readBytes(n)
                 for (b in chunk) accum.add(b)
@@ -48,7 +49,7 @@ internal actual fun writeStringToFile(path: String, content: String): Result<Uni
         if (bytes.isEmpty()) {
             Result.success(Unit)
         } else {
-            val written = fwrite(bytes.refTo(0), 1u, bytes.size.toULong(), fp).toInt()
+            val written = fwrite(bytes.refTo(0), 1.convert(), bytes.size.convert(), fp).toInt()
             if (written != bytes.size) {
                 Result.failure(
                     RuntimeException("Short write on '$path': expected ${bytes.size}, got $written"),
