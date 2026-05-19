@@ -48,3 +48,4 @@ __pycache__/
 /.android-sdk/.knownPackages
 /.android-sdk/
 .kotlin/
+local.properties
