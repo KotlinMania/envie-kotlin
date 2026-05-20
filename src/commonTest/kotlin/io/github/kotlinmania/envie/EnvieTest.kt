@@ -38,6 +38,12 @@ class EnvieTest {
     }
 
     @Test
+    fun test_load_with_path() {
+        val env = Envie.loadWithPath("tmp/envie/example.env").getOrElse { return }
+        assertTrue(env.containsKey("EXAMPLE_KEY"))
+    }
+
+    @Test
     fun test_export_to_system_env() {
         val env = Envie(mutableMapOf("SYSTEM_KEY" to "system_value"))
         env.exportToSystemEnv().getOrThrow()

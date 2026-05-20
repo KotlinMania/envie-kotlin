@@ -1,40 +1,27 @@
-// port-lint: ignore (Native POSIX file I/O via fopen / fread / fwrite / fclose)
+// port-lint: ignore (Native POSIX file I/O via fopen / fgetc / fputc / fclose)
 @file:OptIn(ExperimentalForeignApi::class)
 
 package io.github.kotlinmania.envie
 
-import kotlinx.cinterop.ByteVar
 import kotlinx.cinterop.ExperimentalForeignApi
-import kotlinx.cinterop.allocArray
-import kotlinx.cinterop.convert
-import kotlinx.cinterop.memScoped
-import kotlinx.cinterop.readBytes
-import kotlinx.cinterop.refTo
+import platform.posix.EOF
 import platform.posix.fclose
+import platform.posix.fgetc
 import platform.posix.fopen
-import platform.posix.fread
-import platform.posix.fwrite
-
-private const val IO_CHUNK_SIZE = 4096
+import platform.posix.fputc
 
 internal actual fun readFileToString(path: String): Result<String> {
     val fp = fopen(path, "rb") ?: return Result.failure(
         RuntimeException("Failed to open '$path' for reading"),
     )
     return try {
-        // Read in fixed-size chunks rather than seek-and-bulk-read so the implementation works
-        // uniformly across POSIX (fseek/ftell using `long`) and mingw (using `int`).
-        memScoped {
-            val buf = allocArray<ByteVar>(IO_CHUNK_SIZE)
-            val accum = ArrayList<Byte>(IO_CHUNK_SIZE)
-            while (true) {
-                val n = fread(buf, 1.convert(), IO_CHUNK_SIZE.convert(), fp).toInt()
-                if (n <= 0) break
-                val chunk = buf.readBytes(n)
-                for (b in chunk) accum.add(b)
-            }
-            Result.success(accum.toByteArray().decodeToString())
+        val bytes = ArrayList<Byte>()
+        while (true) {
+            val next = fgetc(fp)
+            if (next == EOF) break
+            bytes.add(next.toByte())
         }
+        Result.success(bytes.toByteArray().decodeToString())
     } finally {
         fclose(fp)
     }
@@ -46,18 +33,14 @@ internal actual fun writeStringToFile(path: String, content: String): Result<Uni
     )
     return try {
         val bytes = content.encodeToByteArray()
-        if (bytes.isEmpty()) {
-            Result.success(Unit)
-        } else {
-            val written = fwrite(bytes.refTo(0), 1.convert(), bytes.size.convert(), fp).toInt()
-            if (written != bytes.size) {
-                Result.failure(
-                    RuntimeException("Short write on '$path': expected ${bytes.size}, got $written"),
+        for ((index, byte) in bytes.withIndex()) {
+            if (fputc(byte.toInt() and 0xff, fp) == EOF) {
+                return Result.failure(
+                    RuntimeException("Short write on '$path': failed at byte $index of ${bytes.size}"),
                 )
-            } else {
-                Result.success(Unit)
             }
         }
+        Result.success(Unit)
     } finally {
         fclose(fp)
     }

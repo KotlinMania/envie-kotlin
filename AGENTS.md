@@ -46,8 +46,10 @@ Check the repo before choosing a workflow.
 4. Pick bottom-up work: dependencies before consumers, leaves before roots.
 5. Read the whole upstream `.rs` file before typing. If the file is too large,
    split the turn into "read" and "write"; never start from a half-read file.
-6. Keep the mapping one Rust file -> one Kotlin file unless the upstream file is
-   pure `mod.rs` re-export glue covered by the `mod.rs` rules below.
+6. For `tmp/envie/src/lib.rs`, keep one Kotlin file per upstream function. The
+   `Envie` value type lives in `Envie.kt`; each function lives in a separate
+   Kotlin file named after its Kotlin API, for example `GetBool.kt` for
+   `get_bool` and `LoadWithPath.kt` for `load_with_path`.
 7. Translate top-to-bottom in upstream order. Preserve declaration order.
 8. Translate comments and docs as content. See "Source comments and KDoc."
 9. Leave hard files visible; do not fill holes with stubs.
@@ -106,6 +108,42 @@ invent absolute upstream paths. If a repo requires an attribution line after the
 For files with no single Rust counterpart, use `// port-lint: ignore` only when
 repo docs allow it, and add the shortest possible upstream-derived or ledger
 note. Do not use ignored files as a place for translation rationale.
+
+## Envie-specific structure
+
+The upstream Rust crate puts the public API in `src/lib.rs`. In this repo, do
+not collapse that whole file into one giant Kotlin file. Keep `Envie.kt` for
+the type and place each upstream function in its own Kotlin file:
+
+| Rust function | Kotlin file |
+|---|---|
+| `load` | `Load.kt` |
+| `load_with_path` | `LoadWithPath.kt` |
+| `reload` | `Reload.kt` |
+| `get` | `Get.kt` |
+| `get_bool` | `GetBool.kt` |
+| `get_int` | `GetInt.kt` |
+| `get_f64` | `GetF64.kt` |
+| `contains_key` | `ContainsKey.kt` |
+| `get_all` | `GetAll.kt` |
+| `set` | `Set.kt` |
+| `remove` | `Remove.kt` |
+| `set_system_env` | `SetSystemEnv.kt` |
+| `export_to_system_env` | `ExportToSystemEnv.kt` |
+| `save_to_env_file` | `SaveToEnvFile.kt` |
+| `parse` | `Parse.kt` |
+
+Do not add a Kotlin `Mod.kt` or root re-export bridge for these functions.
+If generated caller reports ever show downstream callers, migrate those callers
+directly to the defining Kotlin symbol instead of adding aliases here.
+
+## JVM target rule
+
+This repo has `jvm()`, but JVM target is not permission to write Java-flavored
+Kotlin. No `java.*`, no `javax.*`, no `kotlin.jvm.*`, no `@Jvm*`, and no
+`JvmInline`. The only acceptable exception is a low-level JVM or Android system
+call that Kotlin cannot otherwise reach; in this repo that means the
+`System.getenv` reads behind the process-environment actuals.
 
 ## Naming
 

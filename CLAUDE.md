@@ -18,11 +18,11 @@ The discipline:
    know how the file ends. If the file is too long to read in one sitting, split your turn into
    "read the file" and "write the file" — never start typing on a file you've only half-read.
 
-2. **One Rust file → one Kotlin file. Always.** No splitting one `.rs` across several `.kt`. No
-   merging several `.rs` into one `.kt`. The 1:1 mapping is the contract; everything downstream
-   (ast_distance, port-lint headers, code review) assumes it. If a `.rs` is genuinely too big for
-   one Kotlin file, that's a sign you're in `mod.rs`-equivalent territory and the upstream itself
-   is a re-export — verify, don't split.
+2. **For `src/lib.rs`, one Rust function → one Kotlin file.** Keep the `Envie` value type in
+   `Envie.kt`, then put each upstream function in its own Kotlin file named after the Kotlin API:
+   `load` in `Load.kt`, `load_with_path` in `LoadWithPath.kt`, `get_bool` in `GetBool.kt`, and so
+   on. This repo is the explicit exception to the workspace default of one Rust file to one Kotlin
+   file because upstream puts the entire public surface in one `lib.rs`.
 
 3. **Translate top to bottom in upstream order.** Preserve the declaration order. Don't reorder
    for "logical flow" — the upstream's order *is* the logical flow.
@@ -57,8 +57,8 @@ The discipline:
     helper means the function shape doesn't fit Kotlin — restructure the signature, don't suppress.
     `UNCHECKED_CAST` means the type system is missing an invariant — encode it.
 
-13. **Stop at file boundaries, not function boundaries.** After every completed file, exhale,
-    commit, move on.
+13. **Stop at function-file boundaries for `src/lib.rs`.** After every completed function file,
+    run the narrow compile/test gate before moving on.
 
 14. **Doc-port discipline applies even when the upstream doc is awkward.** If the upstream
     author wrote a tortured English sentence, translate the tortured sentence. Don't smooth it.
@@ -96,7 +96,10 @@ For files that have no single Rust counterpart (re-homed from a `mod.rs`, or pur
 
 Targets: macOS arm64/x64, Linux x64, mingw-x64, iOS arm64/x64/simulator-arm64, JS, Wasm-JS, Android.
 
-There is no JVM-only target. `./gradlew jvmTest` is **not** valid.
+This repo has a JVM target, but JVM target does not permit Java-shaped Kotlin.
+Do not import `java.*`, `javax.*`, or `kotlin.jvm.*`; the only acceptable JVM/Android calls are
+low-level system APIs that Kotlin cannot otherwise reach, such as reading the host process
+environment through `System.getenv`.
 
 ## Forbidden
 
