@@ -57,15 +57,15 @@ jobs:
     uses: ./.github/workflows/linux.yml
     permissions:
       contents: read
+  windows:
+    uses: ./.github/workflows/windows.yml
+    permissions:
+      contents: read
   js:
     uses: ./.github/workflows/js.yml
     permissions:
       contents: read
   wasm:
     uses: ./.github/workflows/wasm.yml
-    permissions:
-      contents: read
-  windows:
-    uses: ./.github/workflows/windows.yml
     permissions:
       contents: read
