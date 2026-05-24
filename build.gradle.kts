@@ -194,10 +194,18 @@ kotlin {
         binaries.framework { baseName = "Envie"; xcf.add(this) }
     }
     iosSimulatorArm64 {
-        binaries.framework { baseName = "Envie"; xcf.add(this) }
+        binaries.framework {
+            baseName = "Envie"
+            isStatic = true
+            xcf.add(this)
+        }
     }
     iosX64 {
-        binaries.framework { baseName = "Envie"; xcf.add(this) }
+        binaries.framework {
+            baseName = "Envie"
+            isStatic = true
+            xcf.add(this)
+        }
     }
 
     tvosArm64 {
