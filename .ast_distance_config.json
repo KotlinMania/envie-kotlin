@@ -1,5 +1,6 @@
 {
   "type": "maintenance",
+  "parity_mode": false,
   "name": "envie-kotlin",
   "source": {
     "path": "tmp/envie/src",
