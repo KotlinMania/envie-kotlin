@@ -1,6 +1,6 @@
 const path = require('path');
 
-const { globSync } = require('glob');
+const glob = require('glob');
 const { minimatch } = require('minimatch');
 
 const { ensureWebpackFrameworkSet } = require('../karma/validation');
@@ -26,7 +26,7 @@ function configToWebpackEntries(config) {
   config.files.forEach((fileEntry, i) => {
     // forcefully disable karma watch as we use webpack watch only
     config.files[i].watched = false;
-    files = [...files, ...globSync(fileEntry.pattern)];
+    files = [...files, ...glob.sync(fileEntry.pattern)];
   });
 
   Object.keys(preprocessors).forEach((pattern) => {
