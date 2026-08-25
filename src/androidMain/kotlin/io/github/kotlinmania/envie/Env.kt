@@ -1,4 +1,3 @@
-// port-lint: ignore (Android / JVM implementations of getenv/setenv/unsetenv/environ)
 package io.github.kotlinmania.envie
 
 // JVM has no portable way to mutate its own process-environment block. To still honour the
@@ -38,8 +37,12 @@ public actual fun environ(): List<Pair<String, String>> {
     return merged.entries.map { it.key to it.value }
 }
 
-private class OverlayHit(val present: Boolean, val value: String?)
+private class OverlayHit(
+    val present: Boolean,
+    val value: String?,
+)
 
-private fun overlayLookup(name: String): OverlayHit = synchronized(overlay) {
-    if (overlay.containsKey(name)) OverlayHit(true, overlay[name]) else OverlayHit(false, null)
-}
+private fun overlayLookup(name: String): OverlayHit =
+    synchronized(overlay) {
+        if (overlay.containsKey(name)) OverlayHit(true, overlay[name]) else OverlayHit(false, null)
+    }

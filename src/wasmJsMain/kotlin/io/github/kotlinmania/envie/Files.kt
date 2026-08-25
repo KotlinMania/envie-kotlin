@@ -1,4 +1,3 @@
-// port-lint: ignore (Wasm-JS file I/O — see prose below)
 @file:OptIn(kotlin.js.ExperimentalWasmJsInterop::class)
 
 package io.github.kotlinmania.envie

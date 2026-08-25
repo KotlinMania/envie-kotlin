@@ -1,4 +1,3 @@
-// port-lint: ignore (iOS environ() — Apple does not expose `environ` on iOS, returns empty list)
 package io.github.kotlinmania.envie
 
 // Apple intentionally does not export the POSIX `environ` symbol on iOS; reading the process

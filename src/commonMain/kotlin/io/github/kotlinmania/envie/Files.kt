@@ -1,4 +1,3 @@
-// port-lint: ignore (file-I/O primitives needed by Envie.loadWithPath / saveToEnvFile)
 package io.github.kotlinmania.envie
 
 /**

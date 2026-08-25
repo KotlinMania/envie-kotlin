@@ -1,10 +1,10 @@
-// port-lint: ignore (Node JS file I/O via fs.readFileSync / fs.writeFileSync; browser falls
 //                    through to Result.failure because there is no filesystem)
 package io.github.kotlinmania.envie
 
 internal actual fun readFileToString(path: String): Result<String> {
-    val fs = jsRequireFsOrNull()
-        ?: return Result.failure(RuntimeException("Failed to read '$path' (no Node fs)"))
+    val fs =
+        jsRequireFsOrNull()
+            ?: return Result.failure(RuntimeException("Failed to read '$path' (no Node fs)"))
     return try {
         val content: dynamic = fs.readFileSync(path, "utf-8")
         Result.success(content.unsafeCast<String>())
@@ -14,8 +14,9 @@ internal actual fun readFileToString(path: String): Result<String> {
 }
 
 internal actual fun writeStringToFile(path: String, content: String): Result<Unit> {
-    val fs = jsRequireFsOrNull()
-        ?: return Result.failure(RuntimeException("Failed to write '$path' (no Node fs)"))
+    val fs =
+        jsRequireFsOrNull()
+            ?: return Result.failure(RuntimeException("Failed to write '$path' (no Node fs)"))
     return try {
         fs.writeFileSync(path, content, "utf-8")
         Result.success(Unit)
@@ -34,6 +35,7 @@ internal actual fun writeStringToFile(path: String, content: String): Result<Uni
 // module via `(new Function('return require'))()` and call methods on it from Kotlin code,
 // so the JS string itself contains no method-call syntax webpack can choke on. See workspace
 // CLAUDE.md "Hiding require('fs') from webpack".
-private fun jsRequireFsOrNull(): dynamic = js(
-    "(function(){ try { var rq = (new Function('return typeof require === \"function\" ? require : null'))(); return rq ? rq('fs') : null; } catch (e) { return null; } })()",
-)
+private fun jsRequireFsOrNull(): dynamic =
+    js(
+        "(function(){ try { var rq = (new Function('return typeof require === \"function\" ? require : null'))(); return rq ? rq('fs') : null; } catch (e) { return null; } })()",
+    )

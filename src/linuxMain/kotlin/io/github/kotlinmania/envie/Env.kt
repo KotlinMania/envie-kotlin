@@ -1,4 +1,3 @@
-// port-lint: ignore (Linux POSIX implementations of getenv/setenv/unsetenv/environ)
 @file:OptIn(ExperimentalForeignApi::class)
 
 package io.github.kotlinmania.envie

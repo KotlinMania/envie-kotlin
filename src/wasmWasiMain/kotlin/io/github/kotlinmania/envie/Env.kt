@@ -1,4 +1,3 @@
-// port-lint: ignore (Wasm-WASI process-environment overlay)
 package io.github.kotlinmania.envie
 
 private val overlay = HashMap<String, String?>()

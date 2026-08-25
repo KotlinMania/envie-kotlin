@@ -1,4 +1,3 @@
-// port-lint: ignore (Node / browser JS implementations of getenv/setenv/unsetenv/environ)
 package io.github.kotlinmania.envie
 
 // Browser-hosted JS has no process.env; Node does. The overlay lets setenv/unsetenv work
@@ -39,20 +38,24 @@ public actual fun environ(): List<Pair<String, String>> {
     return merged.entries.map { it.key to it.value }
 }
 
-private fun jsGetEnv(name: String): dynamic = js(
-    "(typeof process !== 'undefined' && process && process.env) ? process.env[name] : undefined",
-)
+private fun jsGetEnv(name: String): dynamic =
+    js(
+        "(typeof process !== 'undefined' && process && process.env) ? process.env[name] : undefined",
+    )
 
-private fun jsSetEnv(name: String, value: String): Unit = js(
-    "if (typeof process !== 'undefined' && process && process.env) { process.env[name] = value; }",
-)
+private fun jsSetEnv(name: String, value: String): Unit =
+    js(
+        "if (typeof process !== 'undefined' && process && process.env) { process.env[name] = value; }",
+    )
 
-private fun jsDeleteEnv(name: String): Unit = js(
-    "if (typeof process !== 'undefined' && process && process.env) { delete process.env[name]; }",
-)
+private fun jsDeleteEnv(name: String): Unit =
+    js(
+        "if (typeof process !== 'undefined' && process && process.env) { delete process.env[name]; }",
+    )
 
-private fun jsEnvKeys(): dynamic = js(
-    "(typeof process !== 'undefined' && process && process.env) ? Object.keys(process.env) : []",
-)
+private fun jsEnvKeys(): dynamic =
+    js(
+        "(typeof process !== 'undefined' && process && process.env) ? Object.keys(process.env) : []",
+    )
 
 private fun undefined(): dynamic = js("undefined")

@@ -1,4 +1,4 @@
-// port-lint: source src/lib.rs (#[cfg(test)] mod tests)
+// port-lint: tests lib.rs
 package io.github.kotlinmania.envie
 
 import kotlin.test.Test
@@ -8,7 +8,7 @@ import kotlin.test.assertTrue
 
 class EnvieTest {
     @Test
-    fun test_parse() {
+    fun testParse() {
         val content = "KEY1=VALUE1\nKEY2=VALUE2\n"
         val variables = Envie.parse(content)
         assertEquals("VALUE1", variables["KEY1"])
@@ -16,7 +16,7 @@ class EnvieTest {
     }
 
     @Test
-    fun test_get() {
+    fun testGet() {
         val env = Envie(mutableMapOf())
         setenv("TEST_KEY", "test_value")
         assertEquals("test_value", env.get("TEST_KEY"))
@@ -24,13 +24,13 @@ class EnvieTest {
     }
 
     @Test
-    fun test_get_f64() {
+    fun testGetF64() {
         val env = Envie(mutableMapOf("PI" to "3.14"))
         assertEquals(3.14, env.getF64("PI").getOrThrow())
     }
 
     @Test
-    fun test_contains_key() {
+    fun testContainsKey() {
         val env = Envie(mutableMapOf("EXISTS" to "value"))
         assertTrue(env.containsKey("EXISTS"))
         unsetenv("DOES_NOT_EXIST")
@@ -38,13 +38,13 @@ class EnvieTest {
     }
 
     @Test
-    fun test_load_with_path() {
+    fun testLoadWithPath() {
         val env = Envie.loadWithPath("tmp/envie/example.env").getOrElse { return }
         assertTrue(env.containsKey("EXAMPLE_KEY"))
     }
 
     @Test
-    fun test_export_to_system_env() {
+    fun testExportToSystemEnv() {
         val env = Envie(mutableMapOf("SYSTEM_KEY" to "system_value"))
         env.exportToSystemEnv().getOrThrow()
         assertEquals("system_value", getenv("SYSTEM_KEY"))
@@ -52,33 +52,34 @@ class EnvieTest {
     }
 
     @Test
-    fun parse_skips_blank_and_comment_lines() {
-        val content = """
+    fun parseSkipsBlankAndCommentLines() {
+        val content =
+            """
             # this is a comment
             KEY1=VALUE1
 
             # another comment
             KEY2=VALUE2
-        """.trimIndent()
+            """.trimIndent()
         val variables = Envie.parse(content)
         assertEquals(mapOf("KEY1" to "VALUE1", "KEY2" to "VALUE2"), variables)
     }
 
     @Test
-    fun parse_trims_keys_and_values() {
+    fun parseTrimsKeysAndValues() {
         val content = "  KEY1  =  VALUE1  \n"
         val variables = Envie.parse(content)
         assertEquals("VALUE1", variables["KEY1"])
     }
 
     @Test
-    fun parse_keeps_value_empty_when_no_equals_sign() {
+    fun parseKeepsValueEmptyWhenNoEqualsSign() {
         val variables = Envie.parse("BARE_KEY\n")
         assertEquals("", variables["BARE_KEY"])
     }
 
     @Test
-    fun get_bool_true_aliases() {
+    fun getBoolTrueAliases() {
         val env = Envie(mutableMapOf("T1" to "true", "T2" to "TRUE", "T3" to "1"))
         assertTrue(env.getBool("T1").getOrThrow())
         assertTrue(env.getBool("T2").getOrThrow())
@@ -86,7 +87,7 @@ class EnvieTest {
     }
 
     @Test
-    fun get_bool_false_aliases() {
+    fun getBoolFalseAliases() {
         val env = Envie(mutableMapOf("F1" to "false", "F2" to "FALSE", "F3" to "0"))
         assertFalse(env.getBool("F1").getOrThrow())
         assertFalse(env.getBool("F2").getOrThrow())
@@ -94,13 +95,13 @@ class EnvieTest {
     }
 
     @Test
-    fun get_bool_rejects_garbage() {
+    fun getBoolRejectsGarbage() {
         val env = Envie(mutableMapOf("X" to "maybe"))
         assertTrue(env.getBool("X").isFailure)
     }
 
     @Test
-    fun get_int_parses_and_rejects() {
+    fun getIntParsesAndRejects() {
         val env = Envie(mutableMapOf("N" to "42", "BAD" to "forty-two"))
         assertEquals(42, env.getInt("N").getOrThrow())
         assertTrue(env.getInt("BAD").isFailure)

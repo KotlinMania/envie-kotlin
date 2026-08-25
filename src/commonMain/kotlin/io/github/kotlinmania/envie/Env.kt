@@ -1,4 +1,3 @@
-// port-lint: ignore (low-level process-environment primitives — common expect declarations)
 package io.github.kotlinmania.envie
 
 /**
