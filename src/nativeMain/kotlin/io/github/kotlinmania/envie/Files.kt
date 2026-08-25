@@ -1,4 +1,3 @@
-// port-lint: ignore (Native POSIX file I/O via fopen / fgetc / fputc / fclose)
 @file:OptIn(ExperimentalForeignApi::class)
 
 package io.github.kotlinmania.envie
@@ -11,9 +10,10 @@ import platform.posix.fopen
 import platform.posix.fputc
 
 internal actual fun readFileToString(path: String): Result<String> {
-    val fp = fopen(path, "rb") ?: return Result.failure(
-        RuntimeException("Failed to open '$path' for reading"),
-    )
+    val fp =
+        fopen(path, "rb") ?: return Result.failure(
+            RuntimeException("Failed to open '$path' for reading"),
+        )
     return try {
         val bytes = ArrayList<Byte>()
         while (true) {
@@ -28,9 +28,10 @@ internal actual fun readFileToString(path: String): Result<String> {
 }
 
 internal actual fun writeStringToFile(path: String, content: String): Result<Unit> {
-    val fp = fopen(path, "wb") ?: return Result.failure(
-        RuntimeException("Failed to open '$path' for writing"),
-    )
+    val fp =
+        fopen(path, "wb") ?: return Result.failure(
+            RuntimeException("Failed to open '$path' for writing"),
+        )
     return try {
         val bytes = content.encodeToByteArray()
         for ((index, byte) in bytes.withIndex()) {

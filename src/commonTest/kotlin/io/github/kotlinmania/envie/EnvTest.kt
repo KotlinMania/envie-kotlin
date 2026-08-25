@@ -8,20 +8,20 @@ import kotlin.test.assertTrue
 
 class EnvTest {
     @Test
-    fun getenv_returns_null_if_env_var_is_not_set() {
+    fun getenvReturnsNullIfEnvVarIsNotSet() {
         unsetenv("ENVIE_TEST_NON_EXISTING")
         assertNull(getenv("ENVIE_TEST_NON_EXISTING"))
     }
 
     @Test
-    fun setenv_then_getenv_round_trip() {
+    fun setenvThenGetenvRoundTrip() {
         setenv("ENVIE_TEST_RT", "hello")
         assertEquals("hello", getenv("ENVIE_TEST_RT"))
         unsetenv("ENVIE_TEST_RT")
     }
 
     @Test
-    fun setenv_overwrites_existing_value() {
+    fun setenvOverwritesExistingValue() {
         setenv("ENVIE_TEST_OVERWRITE", "first")
         setenv("ENVIE_TEST_OVERWRITE", "second")
         assertEquals("second", getenv("ENVIE_TEST_OVERWRITE"))
@@ -29,7 +29,7 @@ class EnvTest {
     }
 
     @Test
-    fun unsetenv_removes_a_set_value() {
+    fun unsetenvRemovesASetValue() {
         setenv("ENVIE_TEST_UNSET", "to-remove")
         assertEquals("to-remove", getenv("ENVIE_TEST_UNSET"))
         unsetenv("ENVIE_TEST_UNSET")
@@ -37,7 +37,7 @@ class EnvTest {
     }
 
     @Test
-    fun environ_contains_a_set_variable_when_enumeration_is_supported() {
+    fun environContainsASetVariableWhenEnumerationIsSupported() {
         setenv("ENVIE_TEST_ENVIRON", "marker")
         val all = environ()
         val hit = all.firstOrNull { it.first == "ENVIE_TEST_ENVIRON" }
@@ -52,7 +52,7 @@ class EnvTest {
     }
 
     @Test
-    fun environ_is_a_snapshot_not_a_live_view() {
+    fun environIsASnapshotNotALiveView() {
         unsetenv("ENVIE_TEST_SNAPSHOT")
         val before = environ()
         setenv("ENVIE_TEST_SNAPSHOT", "v")

@@ -1,4 +1,3 @@
-// port-lint: ignore (Android Native POSIX getenv/setenv/unsetenv; environ is not enumerated)
 @file:OptIn(ExperimentalForeignApi::class)
 
 package io.github.kotlinmania.envie

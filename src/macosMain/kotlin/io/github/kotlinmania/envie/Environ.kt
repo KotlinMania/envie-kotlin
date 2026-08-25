@@ -1,4 +1,3 @@
-// port-lint: ignore (macOS environ() — POSIX `environ` is not directly exposed in a stable way
 //                    by Kotlin/Native's `platform.osx._NSGetEnviron` binding (the returned pointer
 //                    type's `.value` accessor differs across compiler versions). Consumers needing
 //                    the full process env on macOS should use [setenv] / [unsetenv] for the

@@ -1,4 +1,3 @@
-// port-lint: ignore (Wasm-JS / Node + browser implementations of getenv/setenv/unsetenv/environ)
 @file:OptIn(kotlin.js.ExperimentalWasmJsInterop::class)
 
 package io.github.kotlinmania.envie
@@ -37,9 +36,10 @@ public actual fun environ(): List<Pair<String, String>> {
     return merged.entries.map { it.key to it.value }
 }
 
-private fun jsGetEnv(name: String): String? = js(
-    "(typeof process !== 'undefined' && process && process.env && typeof process.env[name] === 'string') ? process.env[name] : null",
-)
+private fun jsGetEnv(name: String): String? =
+    js(
+        "(typeof process !== 'undefined' && process && process.env && typeof process.env[name] === 'string') ? process.env[name] : null",
+    )
 
 private fun jsSetEnv(name: String, value: String) {
     js("if (typeof process !== 'undefined' && process && process.env) { process.env[name] = value; }")
@@ -49,10 +49,12 @@ private fun jsDeleteEnv(name: String) {
     js("if (typeof process !== 'undefined' && process && process.env) { delete process.env[name]; }")
 }
 
-private fun jsEnvCount(): Int = js(
-    "(typeof process !== 'undefined' && process && process.env) ? Object.keys(process.env).length : 0",
-)
+private fun jsEnvCount(): Int =
+    js(
+        "(typeof process !== 'undefined' && process && process.env) ? Object.keys(process.env).length : 0",
+    )
 
-private fun jsEnvKeyAt(index: Int): String? = js(
-    "(typeof process !== 'undefined' && process && process.env) ? Object.keys(process.env)[index] : null",
-)
+private fun jsEnvKeyAt(index: Int): String? =
+    js(
+        "(typeof process !== 'undefined' && process && process.env) ? Object.keys(process.env)[index] : null",
+    )

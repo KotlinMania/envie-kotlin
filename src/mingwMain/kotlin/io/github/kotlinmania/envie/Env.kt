@@ -1,4 +1,3 @@
-// port-lint: ignore (Windows MinGW implementations of getenv/setenv/unsetenv/environ via MSVCRT)
 @file:OptIn(ExperimentalForeignApi::class)
 
 package io.github.kotlinmania.envie
