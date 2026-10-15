@@ -1,19 +1,15 @@
-@file:OptIn(ExperimentalForeignApi::class)
-
 package io.github.kotlinmania.envie
 
-import kotlinx.cinterop.ExperimentalForeignApi
-import kotlinx.cinterop.toKString
-import platform.posix.getenv
-import platform.posix.setenv
-import platform.posix.unsetenv
+import io.github.kotlinmania.libc.unix.getenv as libcGetenv
+import io.github.kotlinmania.libc.unix.setenv as libcSetenv
+import io.github.kotlinmania.libc.unix.unsetenv as libcUnsetenv
 
-public actual fun getenv(name: String): String? = getenv(name)?.toKString()
+public actual fun getenv(name: String): String? = libcGetenv(name)
 
 public actual fun setenv(name: String, value: String) {
-    setenv(name, value, 1)
+    libcSetenv(name, value, 1)
 }
 
 public actual fun unsetenv(name: String) {
-    unsetenv(name)
+    libcUnsetenv(name)
 }
