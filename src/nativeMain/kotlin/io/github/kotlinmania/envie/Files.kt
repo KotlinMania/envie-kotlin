@@ -1,13 +1,11 @@
-@file:OptIn(ExperimentalForeignApi::class)
-
 package io.github.kotlinmania.envie
 
-import kotlinx.cinterop.ExperimentalForeignApi
-import platform.posix.EOF
-import platform.posix.fclose
-import platform.posix.fgetc
-import platform.posix.fopen
-import platform.posix.fputc
+import io.github.kotlinmania.libc.unix.fclose
+import io.github.kotlinmania.libc.unix.fgetc
+import io.github.kotlinmania.libc.unix.fopen
+import io.github.kotlinmania.libc.unix.fputc
+
+private const val EOF: Int = -1
 
 internal actual fun readFileToString(path: String): Result<String> {
     val fp =
